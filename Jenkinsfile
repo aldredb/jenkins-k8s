@@ -39,6 +39,7 @@ pipeline {
                 sh '''
                     export IMAGE="$registry:$BUILD_NUMBER"
                     sed -ie "s~IMAGE~$IMAGE~g" hello.yaml
+                    export KUBECONFIG=/var/lib/jenkins/.kube/config
                     kubectl apply -f hello.yaml
                     '''
             }
