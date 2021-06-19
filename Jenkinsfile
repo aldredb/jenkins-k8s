@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        registry = "hello-jenkins"
+        registry = "jenkins-hello"
         registryCredential = 'dockerhub'
         awsCredential = 'aws'
         dockerImage = ''
@@ -14,7 +14,7 @@ pipeline {
                 }
             }
         }
-        stage('Build image and push to ECR') {
+        stage('Push to ECR') {
             steps{
                 script {
                     docker.withRegistry( 'https://878244765130.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins-hello', "ecr:ap-southeast-1:$awsCredential" ) {
