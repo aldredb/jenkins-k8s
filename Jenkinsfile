@@ -27,7 +27,15 @@ pipeline {
                 sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
-        stage('Update kubeconfig'){
+        stage('Modify K8S Manifest'){
+            steps {
+                sh '''
+                    export IMAGE="$registry:$BUILD_NUMBER"
+                    sed -ie "s~IMAGE~$IMAGE~g" hello.yaml
+                   '''
+            }
+        }
+        stage('Deploy to Cluster'){
             steps {
                 withAWS(region:'ap-southeast-1',credentials:'aws') {
                     sh '''
@@ -37,18 +45,9 @@ pipeline {
                        export AWS_SESSION_TOKEN="$(echo ${CREDENTIALS} | jq -r '.Credentials.SessionToken')"
                        export AWS_EXPIRATION=$(echo ${CREDENTIALS} | jq -r '.Credentials.Expiration')
                        aws eks --region ap-southeast-1 update-kubeconfig --name cluster-1
+                       kubectl apply -f hello.yaml
                        '''                    
                 }
-            }
-        }
-        stage('Deploy Updated Image to Cluster'){
-            steps {
-                sh '''
-                    export IMAGE="$registry:$BUILD_NUMBER"
-                    sed -ie "s~IMAGE~$IMAGE~g" hello.yaml
-                    export KUBECONFIG=/var/lib/jenkins/.kube/config
-                    kubectl apply -f hello.yaml
-                    '''
             }
         }
     }
