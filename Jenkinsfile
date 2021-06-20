@@ -40,6 +40,9 @@ pipeline {
                    '''
             }
         }
+        stage('Approval') {
+            input "Deploy to Cluster??"
+        }
         stage('Deploy to Cluster'){
             steps {
                 withAWS(region:"$awsRegion",credentials:'aws') {
